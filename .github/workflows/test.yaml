@@ -1,0 +1,38 @@
+name: test
+on: 
+  workflow_dispatch
+
+env:
+  IMAGE: backstage
+  SCORE_HUMANITEC_VERSION: '0.8.0'
+  # CLOUD_PROVIDER: aws
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+  # CLOUD_PROVIDER: gcp
+  GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+  GCP_SERVICE_ACCOUNT: ${{ vars.GCP_SERVICE_ACCOUNT }}
+  GCP_GAR_HOST: ${{ vars.GCP_GAR_HOST }}
+  GCP_GAR_NAME: ${{ vars.GCP_GAR_NAME }}
+  # CLOUD_PROVIDER: oci
+  CLOUD_PASSWORD: ${{ secrets.CLOUD_PASSWORD }}
+  OCI_CLI_REGION: ${{ vars.OCI_CLI_REGION }}
+  OCI_CLI_USER: ${{ vars.OCI_CLI_USER }}
+  OCI_CLI_TENANCY: ${{ vars.OCI_CLI_TENANCY }}
+  OCI_CLI_FINGERPRINT: ${{ vars.OCI_CLI_FINGERPRINT }}
+  OCI_CLI_KEY_CONTENT: ${{ secrets.OCI_CLI_KEY_CONTENT }}
+
+jobs:
+  deploy:
+    name: Build & Notify Humanitec
+    runs-on: ubuntu-latest
+
+  permissions:
+    id-token: write
+    contents: write
+
+  - if: ${{ vars.CLOUD_PROVIDER == 'oci' }}
+    id: login-ocir
+    name: Login to OCI Registry
+    uses: oracle-actions/login-ocir@v1.2.1
+    with:
+      auth_token: ${{ env.CLOUD_PASSWORD }}
