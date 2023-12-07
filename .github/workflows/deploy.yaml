@@ -91,6 +91,21 @@ jobs:
           echo "CONTAINER_REGISTRY=${{ env.GCP_GAR_NAME }}" >> "$GITHUB_ENV"
 
       - if: ${{ vars.CLOUD_PROVIDER == 'oci' }}
+        name: Get or create an OCIR Repository
+        uses: oracle-actions/get-ocir-repository@v1.2.1
+        id: get-ocir-repository
+        with:
+          name: refarch_repo
+          compartment: ${{ vars.OCI_CLI_COMPARTMENT }}
+
+      - if: ${{ vars.CLOUD_PROVIDER == 'oci' }}
+        name: "set CONTAINER_REGISTRY env var"
+        run: |
+          echo "CONTAINER_REGISTRY=$REGISTRY" >> "$GITHUB_ENV"
+        env:
+          REGISTRY: ${{ steps.get-ocir-repository.outputs.repo_path }}
+      
+      - if: ${{ vars.CLOUD_PROVIDER == 'oci' }}
         id: login-ocir
         name: Login to OCI Registry
         uses: oracle-actions/login-ocir@v1.2.1
